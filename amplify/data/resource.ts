@@ -43,6 +43,23 @@ Customer: a
   ]),
 
 
+Employee: a
+  .model({
+    firstName: a.string().required(),
+    lastName: a.string().required(),
+    position: a.string(),
+    email: a.string().required(),
+    phone: a.string(),
+    salary: a.integer(),
+    createdAt: a.datetime(),
+  })
+  .authorization((allow) => [
+    allow.group("ADMIN"), // full CRUD
+  ]),
+
+
+
+
 
   Contact: a
     .model({

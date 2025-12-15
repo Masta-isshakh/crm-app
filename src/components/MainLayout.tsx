@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Dashboard from "../pages/Dashboard";
 import Customers from "../pages/Customer";
 import Tickets from "../pages/Tickets";
+import Employees from "../pages/Employees";
 import { getCurrentUser, GetCurrentUserOutput } from "@aws-amplify/auth";
 
 
@@ -13,7 +14,7 @@ interface Props {
 }
 
 export default function MainLayout({ signOut }: Props) {
-  const [page, setPage] = useState<"dashboard" | "customers" | "tickets">(
+  const [page, setPage] = useState<"dashboard" | "employees"| "customers" | "tickets">(
     "dashboard"
   );
   const [userEmail, setUserEmail] = useState<string | null>(null);
@@ -44,6 +45,12 @@ export default function MainLayout({ signOut }: Props) {
           >
             Dashboard
           </button>
+                   <button
+            style={{ display: "block", width: "100%", padding: "8px 16px" }}
+            onClick={() => setPage("employees")}
+          >
+            Employees
+          </button>
           <button
             style={{ display: "block", width: "100%", padding: "8px 16px" }}
             onClick={() => setPage("customers")}
@@ -73,6 +80,7 @@ export default function MainLayout({ signOut }: Props) {
         </header>
 
         {page === "dashboard" && <Dashboard />}
+        {page === "employees" && <Employees />}
         {page === "customers" && <Customers />}
         {page === "tickets" && <Tickets />}
       </main>
