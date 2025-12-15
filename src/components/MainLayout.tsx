@@ -2,9 +2,13 @@ import { useEffect, useState } from "react";
 import Dashboard from "../pages/Dashboard";
 import Customers from "../pages/Customer";
 import Tickets from "../pages/Tickets";
-import { getCurrentUser } from "@aws-amplify/auth";
+import { getCurrentUser, GetCurrentUserOutput } from "@aws-amplify/auth";
+
+
 
 interface Props {
+      user: GetCurrentUserOutput | null;
+
   signOut: () => void;
 }
 
