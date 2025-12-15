@@ -54,6 +54,7 @@ Employee: a
     createdAt: a.datetime(),
   })
   .authorization((allow) => [
+    allow.owner(),
     allow.group("ADMIN"), // full CRUD
   ]),
 
