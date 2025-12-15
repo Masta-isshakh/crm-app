@@ -54,7 +54,7 @@ export default function Customers() {
   };
 
   return (
-    <div>
+    <div style={{ padding: 24 }}>
       <h2>Customers</h2>
       <Button variation="primary" onClick={() => setShowModal(true)}>
         Add Customer
@@ -104,19 +104,21 @@ export default function Customers() {
         </div>
       )}
 
-      {/* Customer List */}
-      <ul style={{ marginTop: 20 }}>
+      {/* Customer Grid */}
+      <div style={gridStyles.container}>
         {customers.map((c) => (
-          <li key={c.id}>
-            {c.name} {c.lastname} – {c.email} – {c.phone}
-          </li>
+          <div key={c.id} style={gridStyles.card}>
+            <h3>{c.name} {c.lastname}</h3>
+            <p><strong>Email:</strong> {c.email || "N/A"}</p>
+            <p><strong>Phone:</strong> {c.phone || "N/A"}</p>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }
 
-// Simple inline modal styles
+// Modal styles
 const modalStyles = {
   overlay: {
     position: "fixed" as "fixed",
@@ -136,5 +138,23 @@ const modalStyles = {
     borderRadius: 8,
     width: 400,
     maxWidth: "90%",
+  },
+};
+
+// Grid card styles
+const gridStyles = {
+  container: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
+    gap: 16,
+    marginTop: 24,
+  },
+  card: {
+    backgroundColor: "#fff",
+    padding: 16,
+    borderRadius: 8,
+    boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+    transition: "transform 0.2s",
+    cursor: "pointer",
   },
 };
