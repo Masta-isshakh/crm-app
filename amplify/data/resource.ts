@@ -20,19 +20,28 @@ const schema = a.schema({
       allow.owner(),
       allow.group("ADMIN"),
     ]),
-Customer: a.model({
-  name: a.string().required(),
-  lastname: a.string().required(), // <- ajouter
-  email: a.string(),
-  phone: a.string(),
-  company: a.string(),
-  notes: a.string(),
-  createdBy: a.string(),
-  createdAt: a.datetime(),
-  contacts: a.hasMany("Contact", "customerId"),
-  deals: a.hasMany("Deal", "customerId"),
-  tickets: a.hasMany("Ticket", "customerId"),
-}),
+Customer: a
+  .model({
+    name: a.string().required(),
+    lastname: a.string().required(),      // si tu veux séparer le nom
+    email: a.string(),
+    phone: a.string(),
+    company: a.string(),
+    notes: a.string(),
+    createdBy: a.string(),
+    createdAt: a.datetime(),
+
+    contacts: a.hasMany("Contact", "customerId"),
+    deals: a.hasMany("Deal", "customerId"),
+    tickets: a.hasMany("Ticket", "customerId"),
+  })
+  .authorization((allow) => [
+    allow.owner(),                   // Le créateur peut lire/écrire
+    allow.group("ADMIN"),            // Les admins peuvent tout faire
+    allow.group("SALES"),            // Les commerciaux peuvent tout faire
+    allow.group("SUPPORT").to(["read"]), // Support peut juste lire
+  ]),
+
 
 
   Contact: a
