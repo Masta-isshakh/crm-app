@@ -1,17 +1,118 @@
-import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
+// amplify/data/resource.ts
+import { a, defineData, type ClientSchema } from "@aws-amplify/backend";
 
-/*== STEP 1 ===============================================================
-The section below creates a Todo database table with a "content" field. Try
-adding a new "isDone" field as a boolean. The authorization rule below
-specifies that any user authenticated via an API key can "create", "read",
-"update", and "delete" any "Todo" records.
-=========================================================================*/
+/*
+  Amplify Gen 2 – CRM Backend Schema
+  Designed for a small company (≤20 users)
+  Roles: ADMIN, SALES, SUPPORT
+*/
+
 const schema = a.schema({
-  Todo: a
+  UserProfile: a
     .model({
-      content: a.string(),
+      email: a.string().required(),
+      fullName: a.string().required(),
+      role: a.enum(["ADMIN", "SALES", "SUPPORT"]),
+      isActive: a.boolean().default(true),
+      createdAt: a.datetime(),
     })
-    .authorization((allow) => [allow.publicApiKey()]),
+    .authorization((allow) => [
+      allow.owner(),
+      allow.group("ADMIN"),
+    ]),
+
+  Customer: a
+    .model({
+      name: a.string().required(),
+      email: a.string(),
+      phone: a.string(),
+      company: a.string(),
+      notes: a.string(),
+      createdBy: a.string(),
+      createdAt: a.datetime(),
+
+      contacts: a.hasMany("Contact", "customerId"),
+      deals: a.hasMany("Deal", "customerId"),
+      tickets: a.hasMany("Ticket", "customerId"),
+    })
+    .authorization((allow) => [
+      allow.group("ADMIN"),
+      allow.group("SALES"),
+      allow.group("SUPPORT").to(["read"]),
+    ]),
+
+  Contact: a
+    .model({
+      customerId: a.id().required(),
+      fullName: a.string().required(),
+      email: a.string(),
+      phone: a.string(),
+      position: a.string(),
+      createdAt: a.datetime(),
+
+      customer: a.belongsTo("Customer", "customerId"),
+    })
+    .authorization((allow) => [
+      allow.group("ADMIN"),
+      allow.group("SALES"),
+    ]),
+
+  Deal: a
+    .model({
+      customerId: a.id().required(),
+      title: a.string().required(),
+      value: a.float(),
+      stage: a.enum([
+        "LEAD",
+        "QUALIFIED",
+        "PROPOSAL",
+        "NEGOTIATION",
+        "WON",
+        "LOST",
+      ]),
+      expectedCloseDate: a.date(),
+      owner: a.string(),
+      createdAt: a.datetime(),
+
+      customer: a.belongsTo("Customer", "customerId"),
+    })
+    .authorization((allow) => [
+      allow.group("ADMIN"),
+      allow.group("SALES"),
+    ]),
+
+  Ticket: a
+    .model({
+      customerId: a.id().required(),
+      title: a.string().required(),
+      description: a.string(),
+      status: a.enum(["OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"]),
+      priority: a.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]),
+      assignedTo: a.string(),
+      createdAt: a.datetime(),
+
+      customer: a.belongsTo("Customer", "customerId"),
+      comments: a.hasMany("TicketComment", "ticketId"),
+    })
+    .authorization((allow) => [
+      allow.group("ADMIN"),
+      allow.group("SUPPORT"),
+      allow.group("SALES").to(["read"]),
+    ]),
+
+  TicketComment: a
+    .model({
+      ticketId: a.id().required(),
+      message: a.string().required(),
+      author: a.string(),
+      createdAt: a.datetime(),
+
+      ticket: a.belongsTo("Ticket", "ticketId"),
+    })
+    .authorization((allow) => [
+      allow.group("ADMIN"),
+      allow.group("SUPPORT"),
+    ]),
 });
 
 export type Schema = ClientSchema<typeof schema>;
@@ -19,39 +120,6 @@ export type Schema = ClientSchema<typeof schema>;
 export const data = defineData({
   schema,
   authorizationModes: {
-    defaultAuthorizationMode: "apiKey",
-    // API Key is used for a.allow.public() rules
-    apiKeyAuthorizationMode: {
-      expiresInDays: 30,
-    },
+    defaultAuthorizationMode: "userPool",
   },
 });
-
-/*== STEP 2 ===============================================================
-Go to your frontend source code. From your client-side code, generate a
-Data client to make CRUDL requests to your table. (THIS SNIPPET WILL ONLY
-WORK IN THE FRONTEND CODE FILE.)
-
-Using JavaScript or Next.js React Server Components, Middleware, Server 
-Actions or Pages Router? Review how to generate Data clients for those use
-cases: https://docs.amplify.aws/gen2/build-a-backend/data/connect-to-API/
-=========================================================================*/
-
-/*
-"use client"
-import { generateClient } from "aws-amplify/data";
-import type { Schema } from "@/amplify/data/resource";
-
-const client = generateClient<Schema>() // use this Data client for CRUDL requests
-*/
-
-/*== STEP 3 ===============================================================
-Fetch records from the database and use them in your frontend component.
-(THIS SNIPPET WILL ONLY WORK IN THE FRONTEND CODE FILE.)
-=========================================================================*/
-
-/* For example, in a React component, you can use this snippet in your
-  function's RETURN statement */
-// const { data: todos } = await client.models.Todo.list()
-
-// return <ul>{todos.map(todo => <li key={todo.id}>{todo.content}</li>)}</ul>
