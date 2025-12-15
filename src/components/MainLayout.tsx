@@ -3,6 +3,7 @@ import Dashboard from "../pages/Dashboard";
 import Customers from "../pages/Customer";
 import Tickets from "../pages/Tickets";
 import Employees from "../pages/Employees";
+import ActivityLog from "../pages/ActivityLogs";
 import { getCurrentUser, GetCurrentUserOutput } from "@aws-amplify/auth";
 
 
@@ -14,7 +15,7 @@ interface Props {
 }
 
 export default function MainLayout({ signOut }: Props) {
-  const [page, setPage] = useState<"dashboard" | "employees"| "customers" | "tickets">(
+  const [page, setPage] = useState<"dashboard" | "employees"| "customers" | "tickets" | "activitylogger">(
     "dashboard"
   );
   const [userEmail, setUserEmail] = useState<string | null>(null);
@@ -63,6 +64,13 @@ export default function MainLayout({ signOut }: Props) {
           >
             Tickets
           </button>
+
+                    <button
+            style={{ display: "block", width: "100%", padding: "8px 16px" }}
+            onClick={() => setPage("activitylogger")}
+          >
+            Activity Logger
+          </button>
           <button
             style={{ display: "block", width: "100%", padding: "8px 16px" }}
             onClick={signOut}
@@ -83,6 +91,7 @@ export default function MainLayout({ signOut }: Props) {
         {page === "employees" && <Employees />}
         {page === "customers" && <Customers />}
         {page === "tickets" && <Tickets />}
+        {page === "activitylogger" && <ActivityLog />}
       </main>
     </div>
   );

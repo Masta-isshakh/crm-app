@@ -58,6 +58,16 @@ Employee: a
     allow.group("ADMIN"), // full CRUD
   ]),
 
+      ActivityLog: a.model({
+      entityType: a.string().required(), // Employee / Customer
+      entityId: a.string().required(),
+      action: a.string().required(), // CREATE / UPDATE / DELETE
+      message: a.string().required(),
+      createdAt: a.datetime().required(),
+    })
+    .authorization((allow) => [
+      allow.authenticated()
+    ]),
 
 
 

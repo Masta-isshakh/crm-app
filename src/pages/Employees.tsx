@@ -4,15 +4,25 @@ import type { Schema } from "../../amplify/data/resource";
 import { Button, TextField } from "@aws-amplify/ui-react";
 import "@aws-amplify/ui-react/styles.css";
 import "./employees.css";
+import { logActivity } from "../utils/activityLogger";
 
 const client = generateClient<Schema>();
+
+type EmployeeForm = {
+  firstName: string;
+  lastName: string;
+  position: string;
+  email: string;
+  phone: string;
+  salary: string;
+};
 
 export default function Employees() {
   const [employees, setEmployees] = useState<any[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<any | null>(null);
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<EmployeeForm>({
     firstName: "",
     lastName: "",
     position: "",
@@ -24,6 +34,10 @@ export default function Employees() {
   useEffect(() => {
     fetchEmployees();
   }, []);
+
+  /* =========================
+     DATA
+  ========================= */
 
   const fetchEmployees = async () => {
     const { data } = await client.models.Employee.list();
@@ -42,35 +56,81 @@ export default function Employees() {
     setEditingEmployee(null);
   };
 
+  /* =========================
+     FORM
+  ========================= */
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
   };
 
-  // CREATE or UPDATE
+  /* =========================
+     CREATE / UPDATE
+  ========================= */
+
   const handleSubmit = async () => {
+    if (!formData.firstName || !formData.lastName || !formData.email) {
+      alert("First name, last name and email are required.");
+      return;
+    }
+
     try {
       if (editingEmployee) {
         await client.models.Employee.update({
           id: editingEmployee.id,
-          ...formData,
-          salary: Number(formData.salary),
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          position: formData.position,
+          email: formData.email,
+          phone: formData.phone,
+          salary: Number(formData.salary) || 0,
         });
+
+        await logActivity(
+          "Employee",
+          editingEmployee.id,
+          "UPDATE",
+          `Employee ${formData.firstName} ${formData.lastName} updated`
+        );
       } else {
-        await client.models.Employee.create({
-          ...formData,
-          salary: Number(formData.salary),
-          createdAt: new Date().toISOString(),
-        });
+const result = await client.models.Employee.create({
+  firstName: formData.firstName,
+  lastName: formData.lastName,
+  position: formData.position,
+  email: formData.email,
+  phone: formData.phone,
+  salary: Number(formData.salary) || 0,
+  createdAt: new Date().toISOString(),
+});
+
+if (!result.data) {
+  throw new Error("Employee not created");
+}
+
+await logActivity(
+  "Employee",
+  result.data.id,
+  "CREATE",
+  `Employee ${formData.firstName} ${formData.lastName} created`
+);
+
       }
 
       resetForm();
       setShowModal(false);
       fetchEmployees();
-    } catch (err) {
-      console.error(err);
-      alert("Operation failed");
+    } catch (error) {
+      console.error("Employee operation failed:", error);
+      alert("Operation failed. Check console for details.");
     }
   };
+
+  /* =========================
+     EDIT
+  ========================= */
 
   const handleEdit = (employee: any) => {
     setEditingEmployee(employee);
@@ -85,11 +145,33 @@ export default function Employees() {
     setShowModal(true);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Delete this employee?")) return;
-    await client.models.Employee.delete({ id });
-    fetchEmployees();
+  /* =========================
+     DELETE
+  ========================= */
+
+  const handleDelete = async (employee: any) => {
+    if (!confirm(`Delete ${employee.firstName} ${employee.lastName}?`)) return;
+
+    try {
+      await client.models.Employee.delete({ id: employee.id });
+
+      await logActivity(
+        "Employee",
+        employee.id,
+        "DELETE",
+        `Employee ${employee.firstName} ${employee.lastName} deleted`
+      );
+
+      fetchEmployees();
+    } catch (error) {
+      console.error("Delete failed:", error);
+      alert("Failed to delete employee.");
+    }
   };
+
+  /* =========================
+     UI
+  ========================= */
 
   return (
     <div className="employees-page">
@@ -127,7 +209,7 @@ export default function Employees() {
         </div>
       )}
 
-      {/* EMPLOYEES LIST */}
+      {/* LIST */}
       <div className="employees-grid">
         {employees.map((e) => (
           <div className="employee-card" key={e.id}>
@@ -139,7 +221,7 @@ export default function Employees() {
 
             <div className="card-actions">
               <Button size="small" onClick={() => handleEdit(e)}>Edit</Button>
-              <Button size="small" variation="destructive" onClick={() => handleDelete(e.id)}>
+              <Button size="small" variation="destructive" onClick={() => handleDelete(e)}>
                 Delete
               </Button>
             </div>
