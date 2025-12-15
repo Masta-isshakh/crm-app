@@ -20,26 +20,20 @@ const schema = a.schema({
       allow.owner(),
       allow.group("ADMIN"),
     ]),
+Customer: a.model({
+  name: a.string().required(),
+  lastname: a.string().required(), // <- ajouter
+  email: a.string(),
+  phone: a.string(),
+  company: a.string(),
+  notes: a.string(),
+  createdBy: a.string(),
+  createdAt: a.datetime(),
+  contacts: a.hasMany("Contact", "customerId"),
+  deals: a.hasMany("Deal", "customerId"),
+  tickets: a.hasMany("Ticket", "customerId"),
+}),
 
-  Customer: a
-    .model({
-      name: a.string().required(),
-      email: a.string(),
-      phone: a.string(),
-      company: a.string(),
-      notes: a.string(),
-      createdBy: a.string(),
-      createdAt: a.datetime(),
-
-      contacts: a.hasMany("Contact", "customerId"),
-      deals: a.hasMany("Deal", "customerId"),
-      tickets: a.hasMany("Ticket", "customerId"),
-    })
-    .authorization((allow) => [
-      allow.group("ADMIN"),
-      allow.group("SALES"),
-      allow.group("SUPPORT").to(["read"]),
-    ]),
 
   Contact: a
     .model({

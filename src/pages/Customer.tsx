@@ -38,7 +38,7 @@ export default function Customers() {
     try {
       await client.models.Customer.create({
         name: formData.name,
-        company: formData.lastname,
+        lastname: formData.lastname,
         email: formData.email,
         phone: formData.phone,
         createdAt: new Date().toISOString(),
