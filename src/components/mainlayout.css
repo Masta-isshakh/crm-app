@@ -66,3 +66,99 @@
   font-weight: 500;
   color: #111827;
 }
+
+
+/* =========================
+   RESPONSIVE DESIGN
+   ========================= */
+
+/* Tablets */
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 200px;
+  }
+
+  .logo-img {
+    width: 48px;
+    height: 48px;
+  }
+
+  .logo-text {
+    font-size: 16px;
+  }
+
+  .main-header h1 {
+    font-size: 18px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .layout-container {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    padding: 8px 12px;
+  }
+
+  .sidebar-logo {
+    padding: 0;
+    gap: 8px;
+  }
+
+  .logo-img {
+    width: 40px;
+    height: 40px;
+  }
+
+  .logo-text {
+    font-size: 14px;
+    white-space: nowrap;
+  }
+
+  .sidebar-nav {
+    display: flex;
+    flex: 1;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .sidebar-nav button {
+    padding: 8px 10px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .sidebar-nav button:hover {
+    border-left: none;
+  }
+
+  .main-content {
+    padding: 16px;
+  }
+
+  .main-header h1 {
+    font-size: 16px;
+    line-height: 1.4;
+  }
+}
+
+/* Small mobile */
+@media (max-width: 480px) {
+  .sidebar-nav {
+    overflow-x: auto;
+  }
+
+  .sidebar-nav button {
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+
+  .main-header h1 {
+    font-size: 14px;
+  }
+}
